@@ -12,7 +12,7 @@ lerna-debug.log*
 lightning_logs/*
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
+models/lightning_logs/*
 # Runtime data
 pids
 *.pid

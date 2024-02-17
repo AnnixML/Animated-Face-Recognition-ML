@@ -6,9 +6,9 @@ from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPerm
 
 # Credentials for connection string
 # KEEP THIS PRIVATE!!!
-account_name = ''
-account_key = ''
-container_name = ''
+account_name = 'anniximagestorage'
+account_key = 'wYjZ2aeHMDX+pyUHmwFtV4LYkHgP7tKHa+TKIuBinVOU1Sa76L8stmoLDh51XvSnkPBxn/J62QED+AStowt7iA=='
+container_name = 'images'
 connection_string = 'DefaultEndpointsProtocol=https;AccountName=' + account_name + ';AccountKey=' + account_key + ';EndpointSuffix=core.windows.net'
 # Create a blob service client
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)

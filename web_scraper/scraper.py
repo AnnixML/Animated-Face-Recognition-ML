@@ -106,7 +106,7 @@ with open(absolute_path + '/character_list.txt', 'r') as file:
         if match:
             character = match.group(1)
             show = match.group(2)
-            image_urls = scrape_images(character, show, 200)
+            image_urls = scrape_images(character, show, 10)
             print(f"Scraped {len(image_urls)} images for {character}'s face from {show} anime")
 
 time.sleep(10)

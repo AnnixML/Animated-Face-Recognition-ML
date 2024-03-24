@@ -9,7 +9,8 @@ lerna-debug.log*
 lightning_logs/*
 
 # Images
-# web_scraper/images/
+!webscraper/images/image_tags.csv
+web_scraper/images/
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

@@ -26,7 +26,7 @@ homedir = os.path.expanduser("~")
 chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
 webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
 browser = webdriver.Chrome(service=webdriver_service, options=chrome_options)
-
+image_id = 194000
 
 def download_image(url, file_name, path=download_path):
     try:
@@ -43,7 +43,7 @@ def download_image(url, file_name, path=download_path):
         raise e
     
 def record_csv_tag(path, character, show, search_term):
-    with open(absolute_path + '/image_tags.csv', 'a') as file:
+    with open(absolute_path + '/images/image_tags.csv', 'a') as file:
         writer = csv.writer(file)
         writer.writerow([path, character, show, search_term])
 
@@ -51,8 +51,6 @@ def scrape_images(character, show, max_images=10):
     def scroll_down():
         browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-    global image_id
-    image_id = 0
     new_path = download_path + "/" + character + "_" + show
     if not os.path.exists(new_path):
         os.makedirs(download_path + "/" + character + "_" + show)
@@ -61,10 +59,14 @@ def scrape_images(character, show, max_images=10):
     search_url = f"https://www.google.com/search?q={search_term}&tbm=isch"
     browser.get(search_url)
     image_urls = set()
+    global image_id
+
+    for _ in range(10):
+        scroll_down()
+        time.sleep(0.5)
 
     while len(image_urls) < max_images:
         print(f"Found {len(image_urls)} images, looking for more...")
-        scroll_down()
         thumbnail_results = browser.find_elements(By.CLASS_NAME, "Q4LuWd")
         print(f"Found {len(thumbnail_results)} thumbnail images")
 
@@ -106,7 +108,7 @@ with open(absolute_path + '/character_list.txt', 'r') as file:
         if match:
             character = match.group(1)
             show = match.group(2)
-            image_urls = scrape_images(character, show, 10)
+            image_urls = scrape_images(character, show, 200)
             print(f"Scraped {len(image_urls)} images for {character}'s face from {show} anime")
 
 time.sleep(10)

@@ -27,7 +27,7 @@ model = AutoModelForImageClassification.from_pretrained(
     num_labels=3357,
     ignore_mismatched_sizes=True,
 )
-weights = torch.load("weights.ckpt")["state_dict"]
+weights = torch.load("weights.ckpt", map_location=torch.device("cpu"))["state_dict"]
 pp = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -58,7 +58,7 @@ def predict():
         top5_probs, top5_classes = torch.topk(probs, 5)
         top5_classes=top5_classes[0].tolist()
         #print(top5_classes)
-        print(animes['bocchi_hitori'])
+        #print(animes['bocchi_hitori'])
         top5_classes = [classes[idx] for idx in top5_classes]
         top5_animes = [animes[chara] for chara in top5_classes]
         return jsonify({

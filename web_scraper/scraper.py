@@ -1,6 +1,7 @@
 import os
 import io
 import re
+import csv
 import time
 import requests
 from PIL import Image
@@ -19,11 +20,13 @@ chrome_options = Options()
 # chrome_options.add_argument("--headless") # Hides the browser window
 chrome_options.add_argument("--no-sandbox") # Bypass OS security model
 # chrome_options.add_experimental_option("detach", True) # Keeps the browser open after the script finishes
+chrome_options.add_argument("--disable-dev-shm-usage")
 
 homedir = os.path.expanduser("~")
 chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
 webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
 browser = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+image_id = 194000
 
 def download_image(url, file_name, path=download_path):
     try:
@@ -35,9 +38,14 @@ def download_image(url, file_name, path=download_path):
             img.save(f, "JPEG")
         print(f"Image {file_name} downloaded successfully")
     except Exception as e:
-        print(f"Error downloading image {file_name}: {e}")
+        print(f"Error downloading image: {e}")
         os.remove(file_path)
         raise e
+    
+def record_csv_tag(path, character, show, search_term):
+    with open(absolute_path + '/images/image_tags.csv', 'a') as file:
+        writer = csv.writer(file)
+        writer.writerow([path, character, show, search_term])
 
 def scrape_images(character, show, max_images=10):
     def scroll_down():
@@ -51,10 +59,14 @@ def scrape_images(character, show, max_images=10):
     search_url = f"https://www.google.com/search?q={search_term}&tbm=isch"
     browser.get(search_url)
     image_urls = set()
+    global image_id
+
+    for _ in range(10):
+        scroll_down()
+        time.sleep(0.5)
 
     while len(image_urls) < max_images:
         print(f"Found {len(image_urls)} images, looking for more...")
-        scroll_down()
         thumbnail_results = browser.find_elements(By.CLASS_NAME, "Q4LuWd")
         print(f"Found {len(thumbnail_results)} thumbnail images")
 
@@ -64,25 +76,30 @@ def scrape_images(character, show, max_images=10):
                 break
             try:
                 img.click()
-                time.sleep(0.3)
+                time.sleep(0.4)
             except Exception:
                 continue
 
             actual_images = browser.find_elements(By.CLASS_NAME, "iPVvYb")
             print(f"Found {len(actual_images)} actual images")
             for actual_image in actual_images:
+                
                 if actual_image.get_attribute('src') in image_urls:
+                    print("Image already downloaded")
                     break
                 if actual_image.get_attribute("src") and "http" in actual_image.get_attribute("src"):
                     image_urls.add(actual_image.get_attribute("src"))
                     try:
-                        download_image(actual_image.get_attribute("src"), f"{character}_{len(image_urls)}.jpg", new_path)
+                        image_name = f"{image_id}.jpg"
+                        download_image(actual_image.get_attribute("src"), image_name, new_path)
+                        record_csv_tag("images/" + f"{image_id}.jpg", character, show, search_term)
+                        image_id += 10
                     except Exception as e:
-                        image_urls.remove(actual_image.get_attribute("src"))
-
-        
+                        print(f"Error scraping image: {e}")
+                        image_urls.remove(actual_image.get_attribute("src"))        
     return image_urls
 
+# Read character list from file
 print(absolute_path)
 with open(absolute_path + '/character_list.txt', 'r') as file:
     for line in file:

@@ -7,7 +7,9 @@ from transformers import AutoModelForImageClassification
 from PIL import Image
 import csv
 import io
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 classes=[]
 animes={}
 file = open("classes.csv", "r")
@@ -45,7 +47,9 @@ for k, v in weights.items():
         w[k] = v
     '''
 model.load_state_dict(w, strict=True)
-
+@app.route('/', methods=['GET'])
+def real():
+    return "yes"
 @app.route('/predict', methods=['POST'])
 def predict():
     file = request.data
@@ -65,7 +69,6 @@ def predict():
             'top5_probs': top5_probs[0].tolist(),
             'top5_classes': top5_classes,
             'top5_animes': top5_animes
-        })
-
+        }), 200
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)

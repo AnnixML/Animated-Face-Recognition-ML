@@ -41,11 +41,6 @@ for k, v in weights.items():
     if k.startswith("net"):
         k = k.replace("net"+".", "")
         w[k] = v
-    '''
-    if "relative_position_bias_table" in k:
-        k = k.replace("bias_table", "index")
-        w[k] = v
-    '''
 model.load_state_dict(w, strict=True)
 @app.route('/', methods=['GET'])
 def real():
